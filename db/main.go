@@ -6,13 +6,13 @@ import (
 )
 
 type Message struct {
-	Messageid int
-	Name      string
-	Body      string
+	Id   int
+	Name string
+	Body string
 }
 
 type Repo struct {
-	DB *DB
+	DB *sql.DB
 }
 
 func Open(dsn string) (*Repo, error) {
