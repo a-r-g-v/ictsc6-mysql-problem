@@ -3,6 +3,7 @@ package main
 import (
 	"./db"
 	"fmt"
+	"github.com/k0kubun/pp"
 	"github.com/zenazn/goji"
 	"os"
 )
@@ -22,11 +23,18 @@ func main() {
 		panic(err)
 	}
 
-	var message interface{}
-	err = repo.MessageRecent(message)
+	messages, err := repo.RecentMessages()
 	if err != nil {
 		panic(err)
 	}
+	pp.Print(messages)
+
+	//	var message db.Message
+	//err = repo.MessageById(&message, "1")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//pp.Print(message)
 
 	goji.Serve()
 }
