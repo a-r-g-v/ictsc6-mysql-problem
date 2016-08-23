@@ -3,32 +3,26 @@ package main
 import (
 	"./db"
 	"fmt"
-	"github.com/k0kubun/pp"
 	"github.com/zenazn/goji"
 	"os"
 )
 
-func main() {
-	mysqlDsn := os.Getenv("BOARD_MYSQLDSN")
+var mysqlDsn string
 
-	if mysqlDsn == "" {
+func main() {
+
+	mysqlDsn = os.Getenv("BOARD_MYSQLDSN")
+
+	if len(mysqlDsn) == 0 {
 		fmt.Fprintln(os.Stderr, "require enviroment variable 'BOARD_MYSQLDSN'")
 		os.Exit(2)
 	}
-	fmt.Printf("BOARD_MYSQLDSN : %v \n", mysqlDsn)
+	// fmt.Printf("BOARD_MYSQLDSN : %v \n", mysqlDsn)
 
-	repo, err := db.Open(mysqlDsn)
+	_, err := db.Open(mysqlDsn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "cannot connect MySQL server")
-		panic(err)
 	}
-
-	messages, err := repo.RecentMessages()
-	if err != nil {
-		panic(err)
-	}
-	pp.Print(messages)
-
 	//	var message db.Message
 	//err = repo.MessageById(&message, "1")
 	//if err != nil {
@@ -36,5 +30,8 @@ func main() {
 	//}
 	//pp.Print(message)
 
+	goji.Get("/", index)
+	goji.Get("/post", getPost)
+	goji.Post("/post", postPost)
 	goji.Serve()
 }

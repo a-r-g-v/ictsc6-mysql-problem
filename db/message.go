@@ -26,3 +26,23 @@ func (r *Repo) RecentMessagesLimit(limit int) ([]Message, error) {
 func (r *Repo) RecentMessages() ([]Message, error) {
 	return r.RecentMessagesLimit(10)
 }
+
+func (r *Repo) CountMessage() (int, error) {
+	var id string // for memo
+	var count int
+	err := r.DB.QueryRow("SELECT id, count(*) from message").Scan(&id, &count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *Repo) PostMessage(name string, body string) error {
+	count, err := r.CountMessage()
+	if err != nil {
+		return err
+	}
+	query := "INSERT INTO message(id, name, body) values(?, ?, ?)"
+	_, err = r.DB.Exec(query, count+1, name, body)
+	return err
+}
