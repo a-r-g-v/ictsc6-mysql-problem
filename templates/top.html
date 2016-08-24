@@ -2,20 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Board</title>
+    <title>社内伝言板</title>
   </head>
   <body>
-    <h3>Board</h3>
+    <h3>社内伝言板</h3>
     <hr>
-    <a href="/post">post</a>
-    現在の書き込み総件数: {{.Cnt}} <br />
+    <a href="/post">新規投稿</a>
     <hr>
     {{range .Message}}
-      Id:{{.Id}}
-      Name:{{.Name}}
-      Body: {{.Body}}
-      <hr>
-      {{end}}
-      
+    No:{{.Id}} 名前:{{.Name}} <br />
+    {{.Body}}
+    <hr>
+    {{end}}
+
+    現在の書き込み総件数: {{.Cnt}} <br />
   </body>
 </html>

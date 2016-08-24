@@ -1,4 +1,5 @@
-create table message(id integer primary key AUTO_INCREMENT, name text, body text);
+drop table if exists message;
 
-insert into message(name ,body) values("poe", "poe1234");
+create table message(id integer primary key AUTO_INCREMENT, name text, body text) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+insert into message(name ,body) values("社内伝言板", "社内伝言板です");
 

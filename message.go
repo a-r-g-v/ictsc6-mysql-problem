@@ -2,12 +2,9 @@ package main
 
 import (
 	"./db"
-	"fmt"
-	"github.com/k0kubun/pp"
 	"github.com/zenazn/goji/web"
+	"html/template"
 	"net/http"
-	"os"
-	"text/template"
 )
 
 type IndexTemplate struct {
@@ -15,24 +12,29 @@ type IndexTemplate struct {
 	Cnt     int
 }
 
+type MessageTemplate struct {
+	Message string
+}
+
 func index(c web.C, w http.ResponseWriter, r *http.Request) {
 	Repo, err := db.Open(mysqlDsn)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "cannot connect MySQL server")
+		renderMessage("DBへの接続に失敗しました", w)
+		return
 	}
 
 	count, err := Repo.CountMessage()
-	count += 1
 
 	if err != nil {
+		renderMessage("エラーが発生しました", w)
+		return
 	}
 
 	messages, err := Repo.RecentMessages()
 
 	if err != nil {
-	}
-	for _, data := range messages {
-		pp.Print(data)
+		renderMessage("エラーが発生しました", w)
+		return
 	}
 	t := template.Must(template.ParseFiles("./templates/top.html"))
 
@@ -48,23 +50,27 @@ func getPost(c web.C, w http.ResponseWriter, r *http.Request) {
 func postPost(c web.C, w http.ResponseWriter, r *http.Request) {
 	Repo, err := db.Open(mysqlDsn)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "cannot connect MySQL server")
+		renderMessage("DBへの接続に失敗しました", w)
+		return
 	}
 	name := r.FormValue("name")
 	body := r.FormValue("body")
 	if len(name) == 0 || len(body) == 0 {
-		fmt.Fprintln(w, "エラーが発生しました<br />")
-		fmt.Fprintln(w, "<a href='/'>トップページへ戻る</a>")
+		renderMessage("名前欄か，内容欄が空白です", w)
 		return
-	} else {
-		err = Repo.PostMessage(name, body)
-		if err != nil {
-			fmt.Fprintln(w, "書き込みに失敗しました")
-			fmt.Fprintln(w, "<a href='/'>トップページへ戻る</a>")
-		} else {
-			fmt.Fprintln(w, "書き込みに成功しました<br />")
-			fmt.Fprintln(w, "<a href='/'>トップページへ戻る</a>")
-		}
-
 	}
+	err = Repo.PostMessage(name, body)
+	if err != nil {
+		renderMessage("エラーが発生しました", w)
+		return
+	}
+	renderMessage("書き込みに成功しました", w)
+	return
+
+}
+
+func renderMessage(message string, w http.ResponseWriter) {
+	t := template.Must(template.ParseFiles("./templates/message.html"))
+	args := &MessageTemplate{Message: message}
+	t.Execute(w, args)
 }
