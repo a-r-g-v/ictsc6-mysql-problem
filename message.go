@@ -9,7 +9,6 @@ import (
 
 type IndexTemplate struct {
 	Message []db.Message
-	Cnt     int
 }
 
 type MessageTemplate struct {
@@ -23,13 +22,6 @@ func index(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, err := Repo.CountMessage()
-
-	if err != nil {
-		renderMessage("エラーが発生しました", w)
-		return
-	}
-
 	messages, err := Repo.RecentMessages()
 
 	if err != nil {
@@ -38,7 +30,7 @@ func index(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 	t := template.Must(template.ParseFiles("./templates/top.html"))
 
-	args := &IndexTemplate{Message: messages, Cnt: count}
+	args := &IndexTemplate{Message: messages}
 	t.Execute(w, args)
 
 }
